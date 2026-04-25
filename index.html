@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><script>
+(function(){
+  var __k="bba4a8a5-e8e9-4c42-852e-8245ee59efd3";
+  var __a=null;
+  var __c=null;
+  if(!__k&&!__c)return;
+  var _f=window.fetch;
+  function patchUrls(data){
+    if(!__a)return data;
+    try{
+      var s=JSON.stringify(data);
+      var keys=Object.keys(__a);
+      for(var i=0;i<keys.length;i++){s=s.split(keys[i]).join(__a[keys[i]]);}
+      return JSON.parse(s);
+    }catch(e){return data;}
+  }
+  window.fetch=function(url,opts){
+    var u=typeof url==="string"?url:String(url);
+    if(!u.startsWith("/api/notion/"))return _f.apply(this,arguments);
+    var path=u.slice("/api/notion".length);
+    var method=(opts&&opts.method)||"GET";
+    var body;
+    try{body=opts&&opts.body?JSON.parse(opts.body):undefined;}catch(e){body=opts&&opts.body;}
+    if(__c){
+      var ck=method+":"+path+":"+(body?JSON.stringify(body):"");
+      if(__c[ck]){
+        return Promise.resolve(new Response(JSON.stringify(patchUrls(__c[ck])),{
+          status:200,headers:{"Content-Type":"application/json"}
+        }));
+      }
+    }
+    if(!__k)return Promise.reject(new Error("no deploy key"));
+    return _f("https://misiso.com/api/notion/deploy-proxy",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({deployKey:__k,path:path,method:method,body:body})
+    }).then(function(r){
+      var status=r.status;
+      return r.json().then(function(data){
+        return new Response(JSON.stringify(patchUrls(data)),{
+          status:status,
+          headers:{"Content-Type":"application/json"}
+        });
+      });
+    });
+  };
+})();
+</script>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Notion Code Preview"/>
+<meta property="og:description" content="Built with Notion Code Previewer"/>
+<meta property="og:image" content="https://hellokoogen.github.io/notion-preview-0d70defd/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://hellokoogen.github.io/notion-preview-0d70defd/og-image.png"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2032%2032'%3E%3Crect%20width%3D'32'%20height%3D'32'%20rx%3D'6'%20fill%3D'%25236366f1'%2F%3E%3Ctext%20x%3D'16'%20y%3D'22'%20text-anchor%3D'middle'%20font-size%3D'18'%20fill%3D'white'%20font-family%3D'sans-serif'%3EN%3C%2Ftext%3E%3C%2Fsvg%3E"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+/* === Global Reset & Base === */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+/* === App Layout === */
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.main-content { flex: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1rem; width: 100%; }
+
+/* === Navigation === */
+.nav-bar { background: #fff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+.nav-inner { max-width: 960px; margin: 0 auto; padding: 0 1rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.nav-logo { background: none; border: none; font-size: 1.25rem; font-weight: 700; cursor: pointer; color: #1e293b; }
+.nav-links { display: flex; gap: 0.5rem; }
+.nav-link { background: none; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; font-size: 0.9rem; color: #64748b; transition: all 0.2s; }
+.nav-link:hover { background: #f1f5f9; color: #1e293b; }
+.nav-link.active { background: #6366f1; color: #fff; }
+
+/* === Hero === */
+.hero { background: linear-gradient(135deg, #312e81, #6366f1); border-radius: 1.5rem; padding: 4rem 2rem; text-align: center; color: #fff; margin-bottom: 3rem; }
+.hero-title { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.3; }
+.hero-desc { font-size: 1.05rem; opacity: 0.9; margin-bottom: 2rem; line-height: 1.7; }
+.hero-btn { background: #fff; color: #6366f1; border: none; padding: 0.85rem 2rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.hero-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+
+/* === Category Section === */
+.section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.25rem; }
+.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+.category-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.category-card:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(99,102,241,0.15); transform: translateY(-2px); }
+.category-icon { font-size: 2rem; }
+.category-name { font-size: 0.9rem; font-weight: 600; color: #334155; }
+
+/* === Search Page === */
+.search-header { margin-bottom: 2rem; }
+.search-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+.search-input { width: 100%; padding: 0.85rem 1rem; border: 2px solid #e2e8f0; border-radius: 0.75rem; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+.search-input:focus { border-color: #6366f1; }
+.filter-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; gap: 1rem; flex-wrap: wrap; }
+.filter-categories { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.filter-btn { background: #f1f5f9; border: 1px solid #e2e8f0; padding: 0.4rem 0.85rem; border-radius: 2rem; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+.filter-btn:hover { border-color: #6366f1; }
+.filter-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+.filter-select { padding: 0.4rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.85rem; outline: none; }
+
+/* === Card Grid === */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+/* === Review Card === */
+.review-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.25rem; cursor: pointer; transition: all 0.2s; }
+.review-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: #cbd5e1; }
+.card-header { margin-bottom: 0.75rem; }
+.card-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; color: #1e293b; }
+.card-meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.card-product { font-size: 0.8rem; color: #6366f1; font-weight: 600; }
+.badge { background: #f1f5f9; color: #64748b; font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 1rem; font-weight: 500; }
+.card-rating { margin-bottom: 0.5rem; }
+.card-summary { font-size: 0.9rem; color: #475569; line-height: 1.5; margin-bottom: 0.75rem; }
+.card-detail { background: #fef2f2; border-radius: 0.5rem; padding: 1rem; margin-bottom: 0.75rem; }
+.card-detail p { font-size: 0.85rem; color: #64748b; line-height: 1.6; }
+.card-footer { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; }
+
+/* === Star Rating === */
+.star-rating { display: inline-flex; gap: 0.15rem; }
+.star { font-size: 1.25rem; color: #e2e8f0; cursor: default; transition: color 0.15s; user-select: none; }
+.star.filled { color: #f59e0b; }
+.star:not(.readonly) { cursor: pointer; }
+.star:not(.readonly):hover { transform: scale(1.15); }
+
+/* === Pagination === */
+.pager { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; }
+.pager button { padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #fff; color: #475569; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; }
+.pager button:hover:not(:disabled) { background: #6366f1; color: #fff; border-color: #6366f1; }
+.pager button.active { background: #6366f1; color: #fff; border-color: #6366f1; }
+.pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* === Write CTA === */
+.write-cta { text-align: center; margin-top: 2rem; }
+.write-btn { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border: none; padding: 0.85rem 2rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+.write-btn:hover { transform: translateY(-2px); }
+
+/* === Form Page === */
+.form-page { max-width: 600px; margin: 0 auto; }
+.form-page h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+.form-desc { color: #64748b; margin-bottom: 2rem; font-size: 0.9rem; }
+.field { margin-bottom: 1.5rem; }
+.field label { display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem; }
+.field label small { font-weight: 400; color: #94a3b8; }
+.required { color: #ef4444; }
+.field input[type="text"],
+.field select,
+.field textarea {
+  width: 100%; padding: 0.75rem 1rem;
+  border: 1.5px solid #e2e8f0; border-radius: 0.5rem;
+  font-size: 0.95rem; outline: none; transition: border-color 0.2s; font-family: inherit;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #6366f1; }
+.field textarea { resize: vertical; }
+.auto-field { background: #f1f5f9; padding: 0.65rem 1rem; border-radius: 0.5rem; color: #6366f1; font-weight: 500; font-size: 0.9rem; }
+.radio-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+.radio-label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.9rem; padding: 0.5rem 1rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; transition: all 0.2s; }
+.radio-label:has(input:checked) { background: #eef2ff; border-color: #6366f1; color: #6366f1; font-weight: 600; }
+.radio-label input[type="radio"] { accent-color: #6366f1; }
+.char-count { text-align: right; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem; }
+.error-msg { color: #ef4444; font-size: 0.8rem; margin-top: 0.35rem; display: block; }
+.submit-btn { width: 100%; background: #6366f1; color: #fff; border: none; padding: 1rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.submit-btn:hover:not(:disabled) { background: #4f46e5; }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.primary-btn { background: #6366f1; color: #fff; border: none; padding: 0.75rem 2rem; border-radius: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+.primary-btn:hover { background: #4f46e5; }
+
+/* === Success === */
+.form-success { text-align: center; padding: 4rem 1rem; }
+.success-icon { font-size: 3rem; margin-bottom: 1rem; }
+.form-success h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.form-success p { color: #64748b; }
+
+/* === States === */
+.loading-state, .empty-state { text-align: center; padding: 4rem; color: #94a3b8; font-size: 1rem; }
+
+/* === Footer === */
+.footer { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid #e2e8f0; margin-top: 2rem; }
+
+/* === Responsive === */
+@media (max-width: 640px) {
+  .hero { padding: 2.5rem 1.5rem; }
+  .hero-title { font-size: 1.5rem; }
+  .category-grid { grid-template-columns: repeat(3, 1fr); }
+  .card-grid { grid-template-columns: 1fr; }
+  .filter-row { flex-direction: column; align-items: stretch; }
+  .nav-link { padding: 0.4rem 0.6rem; font-size: 0.8rem; }
+}
+</style>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>if(window.Babel)Babel.disableScriptTags=true;</script>
+</head><body><div id="root"></div><script type="module">
+var __stripPlugin=function(){return{visitor:{ImportDeclaration:function(path){var src=path.node.source.value;if(src.indexOf("./")===0||src.indexOf("../")===0)path.remove();},ExportDefaultDeclaration:function(path){var decl=path.node.declaration;if(decl.type==="FunctionDeclaration"||decl.type==="ClassDeclaration"){path.replaceWith(decl);}else{path.replaceWith({type:"VariableDeclaration",kind:"var",declarations:[{type:"VariableDeclarator",id:{type:"Identifier",name:"_default"},init:decl}]});}},ExportNamedDeclaration:function(path){if(path.node.declaration){path.replaceWith(path.node.declaration);}else{path.remove();}},ExportAllDeclaration:function(path){path.remove();}}};};
+var __dedupePlugin=function(){var _s={};return{visitor:{VariableDeclaration:function(p){if(p.parent.type!=="Program")return;if(p.node.kind!=="const"&&p.node.kind!=="let")return;var kept=[];for(var i=0;i<p.node.declarations.length;i++){var d=p.node.declarations[i];var n=d.id&&d.id.type==="Identifier"?d.id.name:null;if(n&&_s[n]){}else{if(n)_s[n]=true;kept.push(d);}}if(kept.length===0){p.remove();}else{p.node.declarations=kept;}}}}};
+var __jsxDecodePlugin=function(){function _d(v){v=v.replace(/\\u\{([0-9a-fA-F]+)\}/g,function(_,h){return String.fromCodePoint(parseInt(h,16));});v=v.replace(/\\u([0-9a-fA-F]{4})/g,function(_,h){return String.fromCharCode(parseInt(h,16));});return v;}return{visitor:{JSXText:function(p){p.node.value=_d(p.node.value);},StringLiteral:function(p){if(!p.parent||p.parent.type!=="JSXAttribute")return;p.node.value=_d(p.node.value);}}}};
+var __code="import React from 'https://esm.sh/react';\nimport ReactDOM from 'https://esm.sh/react-dom/client';\nimport { useState, useMemo, useEffect } from 'https://esm.sh/react';\n\n// components/StarRating.jsx\nfunction StarRating({ value, onChange, readonly }) {\n  const [hover, setHover] = useState(0);\n  return (\n    <div className=\"star-rating\">\n      {[1, 2, 3, 4, 5].map(i => (\n        <span\n          key={i}\n          className={`star ${i <= (hover || value) ? 'filled' : ''} ${readonly ? 'readonly' : ''}`}\n          onClick={() => !readonly && onChange && onChange(i)}\n          onMouseEnter={() => !readonly && setHover(i)}\n          onMouseLeave={() => !readonly && setHover(0)}\n        >\n          ★\n        </span>\n      ))}\n    </div>\n  );\n}\n\n// components/ReviewCard.jsx\nfunction ReviewCard({ review, expanded, onToggle }) {\n  return (\n    <div className=\"review-card\" onClick={() => onToggle(review.id)}>\n      <div className=\"card-header\">\n        <h3 className=\"card-title\">{review.후기제목}</h3>\n        <div className=\"card-meta\">\n          <span className=\"card-product\">{review.제품명}</span>\n          {review.사용기간 && <span className=\"badge\">{review.사용기간}</span>}\n        </div>\n      </div>\n      <div className=\"card-rating\">\n        <StarRating value={review.별점} readonly={true} />\n      </div>\n      <p className=\"card-summary\">{review.단점요약}</p>\n      {expanded && (\n        <div className=\"card-detail\">\n          <p>{review.상세내용}</p>\n        </div>\n      )}\n      <div className=\"card-footer\">\n        <span>{review.작성자}</span>\n        <span>{review.작성일}</span>\n      </div>\n    </div>\n  );\n}\n\n// components/Nav.jsx\nfunction Nav({ page, onNavigate }) {\n  return (\n    <nav className=\"nav-bar\">\n      <div className=\"nav-inner\">\n        <button className=\"nav-logo\" onClick={() => onNavigate('home')}>\n          👎 단점검색\n        </button>\n        <div className=\"nav-links\">\n          <button className={`nav-link ${page === 'home' ? 'active' : ''}`} onClick={() => onNavigate('home')}>홈</button>\n          <button className={`nav-link ${page === 'search' ? 'active' : ''}`} onClick={() => onNavigate('search')}>검색</button>\n          <button className={`nav-link ${page === 'write' ? 'active' : ''}`} onClick={() => onNavigate('write')}>후기 작성</button>\n        </div>\n      </div>\n    </nav>\n  );\n}\n\n// app/search.jsx\nfunction SearchPage({ products, reviews, initialCategory, onNavigate }) {\n  const [query, setQuery] = useState('');\n  const [category, setCategory] = useState(initialCategory || '');\n  const [ratingFilter, setRatingFilter] = useState(0);\n  const [expandedId, setExpandedId] = useState(null);\n  const [currentPage, setCurrentPage] = useState(1);\n  const ITEMS_PER_PAGE = 6;\n\n  useEffect(() => {\n    setCategory(initialCategory || '');\n    setCurrentPage(1);\n  }, [initialCategory]);\n\n  const categories = useMemo(() => {\n    return [...new Set(products.map(p => p.카테고리).filter(Boolean))];\n  }, [products]);\n\n  const filtered = useMemo(() => {\n    return reviews.filter(r => {\n      if (query && !r.후기제목.includes(query) && !r.단점요약.includes(query) && !r.제품명.includes(query)) return false;\n      if (category && r.카테고리 !== category) return false;\n      if (ratingFilter && r.별점 > ratingFilter) return false;\n      return true;\n    });\n  }, [reviews, query, category, ratingFilter]);\n\n  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);\n  const pageData = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);\n\n  return (\n    <div className=\"search-page\">\n      <div className=\"search-header\">\n        <h2>단점 후기 검색</h2>\n        <input\n          className=\"search-input\"\n          placeholder=\"제품명 또는 키워드로 검색...\"\n          value={query}\n          onChange={e => { setQuery(e.target.value); setCurrentPage(1); }}\n        />\n        <div className=\"filter-row\">\n          <div className=\"filter-categories\">\n            <button className={`filter-btn ${!category ? 'active' : ''}`} onClick={() => { setCategory(''); setCurrentPage(1); }}>전체</button>\n            {categories.map(c => (\n              <button key={c} className={`filter-btn ${category === c ? 'active' : ''}`} onClick={() => { setCategory(c); setCurrentPage(1); }}>{c}</button>\n            ))}\n          </div>\n          <select className=\"filter-select\" value={ratingFilter} onChange={e => { setRatingFilter(Number(e.target.value)); setCurrentPage(1); }}>\n            <option value={0}>별점 전체</option>\n            <option value={1}>★1 이하</option>\n            <option value={2}>★2 이하</option>\n            <option value={3}>★3 이하</option>\n          </select>\n        </div>\n      </div>\n\n      {filtered.length === 0 ? (\n        <div className=\"empty-state\">검색 결과가 없습니다</div>\n      ) : (\n        <div>\n          <div className=\"card-grid\">\n            {pageData.map(r => (\n              <ReviewCard\n                key={r.id}\n                review={r}\n                expanded={expandedId === r.id}\n                onToggle={id => setExpandedId(expandedId === id ? null : id)}\n              />\n            ))}\n          </div>\n          {totalPages > 1 && (\n            <div className=\"pager\">\n              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage <= 1}>이전</button>\n              {Array.from({ length: totalPages }, (_, i) => (\n                <button key={i + 1} className={currentPage === i + 1 ? 'active' : ''} onClick={() => setCurrentPage(i + 1)}>{i + 1}</button>\n              ))}\n              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage >= totalPages}>다음</button>\n            </div>\n          )}\n        </div>\n      )}\n\n      <div className=\"write-cta\">\n        <button className=\"write-btn\" onClick={() => onNavigate('write')}>✏️ 단점 후기 작성하기</button>\n      </div>\n    </div>\n  );\n}\n// app/write.jsx\nfunction WritePage({ products, onNavigate, reviewDbId }) {\n  const [form, setForm] = useState({\n    productId: '', rating: 0, summary: '', detail: '', period: '', author: ''\n  });\n  const [submitting, setSubmitting] = useState(false);\n  const [submitted, setSubmitted] = useState(false);\n  const [errors, setErrors] = useState({});\n\n  const selectedProduct = products.find(p => p.id === form.productId);\n\n  function validate() {\n    const errs = {};\n    if (!form.productId) errs.productId = '제품을 선택해주세요';\n    if (!form.rating) errs.rating = '별점을 선택해주세요';\n    if (!form.summary.trim()) errs.summary = '단점 요약을 입력해주세요';\n    if (form.detail.trim().length < 20) errs.detail = '상세 내용을 20자 이상 입력해주세요';\n    if (!form.period) errs.period = '사용 기간을 선택해주세요';\n    if (!form.author.trim()) errs.author = '닉네임을 입력해주세요';\n    setErrors(errs);\n    return Object.keys(errs).length === 0;\n  }\n\n  async function handleSubmit(e) {\n    e.preventDefault();\n    if (!validate()) return;\n    setSubmitting(true);\n    try {\n      const body = {\n        parent: { database_id: reviewDbId },\n        properties: {\n          '후기 제목': { title: [{ text: { content: form.summary } }] },\n          '단점 요약': { rich_text: [{ text: { content: form.summary } }] },\n          '상세 내용': { rich_text: [{ text: { content: form.detail } }] },\n          '별점': { number: form.rating },\n          '사용 기간': { select: { name: form.period } },\n          '작성자': { rich_text: [{ text: { content: form.author } }] },\n          '작성일': { date: { start: new Date().toISOString().split('T')[0] } }\n        }\n      };\n      await fetch('/api/notion/pages', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify(body)\n      });\n      setSubmitted(true);\n    } catch (err) {\n      alert('제출에 실패했습니다. 다시 시도해주세요.');\n    } finally {\n      setSubmitting(false);\n    }\n  }\n\n  if (submitted) {\n    return (\n      <div className=\"form-success\">\n        <div className=\"success-icon\">✅</div>\n        <h2>후기가 등록되었습니다!</h2>\n        <p>소중한 단점 후기 감사합니다.</p>\n        <button className=\"primary-btn\" onClick={() => onNavigate('search')}>후기 목록 보기</button>\n      </div>\n    );\n  }\n\n  return (\n    <div className=\"form-page\">\n      <h2>단점 후기 작성</h2>\n      <p className=\"form-desc\">솔직한 단점을 공유해 주세요. 다른 소비자의 현명한 구매를 도울 수 있습니다.</p>\n      <form onSubmit={handleSubmit}>\n        <div className=\"field\">\n          <label>제품 선택 <span className=\"required\">*</span></label>\n          <select value={form.productId} onChange={e => setForm({ ...form, productId: e.target.value })}>\n            <option value=\"\">-- 제품을 선택하세요 --</option>\n            {products.map(p => <option key={p.id} value={p.id}>{p.제품명} ({p.브랜드})</option>)}\n          </select>\n          {errors.productId && <span className=\"error-msg\">{errors.productId}</span>}\n        </div>\n\n        {selectedProduct && (\n          <div className=\"field\">\n            <label>카테고리</label>\n            <div className=\"auto-field\">{selectedProduct.카테고리}</div>\n          </div>\n        )}\n\n        <div className=\"field\">\n          <label>별점 <span className=\"required\">*</span></label>\n          <StarRating value={form.rating} onChange={v => setForm({ ...form, rating: v })} />\n          {errors.rating && <span className=\"error-msg\">{errors.rating}</span>}\n        </div>\n\n        <div className=\"field\">\n          <label>단점 요약 <span className=\"required\">*</span> <small>(50자 이내 권장)</small></label>\n          <input type=\"text\" maxLength={50} value={form.summary} onChange={e => setForm({ ...form, summary: e.target.value })} placeholder=\"핵심 단점을 한 줄로 요약해주세요\" />\n          {errors.summary && <span className=\"error-msg\">{errors.summary}</span>}\n        </div>\n\n        <div className=\"field\">\n          <label>상세 내용 <span className=\"required\">*</span> <small>(20자 이상)</small></label>\n          <textarea rows={5} value={form.detail} onChange={e => setForm({ ...form, detail: e.target.value })} placeholder=\"구체적인 단점 경험을 자유롭게 서술해주세요\" />\n          <div className=\"char-count\">{form.detail.length}자</div>\n          {errors.detail && <span className=\"error-msg\">{errors.detail}</span>}\n        </div>\n\n        <div className=\"field\">\n          <label>사용 기간 <span className=\"required\">*</span></label>\n          <div className=\"radio-group\">\n            {['1주 미만', '1개월', '3개월+'].map(p => (\n              <label key={p} className=\"radio-label\">\n                <input type=\"radio\" name=\"period\" value={p} checked={form.period === p} onChange={e => setForm({ ...form, period: e.target.value })} />\n                {p}\n              </label>\n            ))}\n          </div>\n          {errors.period && <span className=\"error-msg\">{errors.period}</span>}\n        </div>\n\n        <div className=\"field\">\n          <label>작성자 닉네임 <span className=\"required\">*</span></label>\n          <input type=\"text\" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} placeholder=\"닉네임을 입력하세요\" />\n          {errors.author && <span className=\"error-msg\">{errors.author}</span>}\n        </div>\n\n        <button type=\"submit\" className=\"submit-btn\" disabled={submitting}>\n          {submitting ? '제출 중...' : '후기 등록하기'}\n        </button>\n      </form>\n    </div>\n  );\n}\n// app/page.tsx\n\n/* ── DB 설정 ── */\nconst PRODUCT_DB_ID = '여기에_제품_DB_ID_입력';\nconst REVIEW_DB_ID = '여기에_후기_DB_ID_입력';\n\n/* ── 유틸 함수 ── */\nfunction extractDbId(raw) {\n  if (!raw) return raw;\n  const s = raw.replace(/-/g, '');\n  const m = s.match(/([a-f0-9]{32})/);\n  return m ? m[1] : raw;\n}\n\nfunction getCellValue(prop) {\n  if (!prop) return '';\n  switch (prop.type) {\n    case 'title':        return prop.title.map(t => t.plain_text).join('');\n    case 'rich_text':    return prop.rich_text.map(t => t.plain_text).join('');\n    case 'number':       return prop.number ?? '';\n    case 'select':       return prop.select?.name ?? '';\n    case 'multi_select': return prop.multi_select.map(s => s.name).join(', ');\n    case 'date':         return prop.date?.start ?? '';\n    case 'checkbox':     return prop.checkbox ? '✓' : '';\n    case 'url':          return prop.url ?? '';\n    case 'files':        return prop.files[0]?.file?.url ?? prop.files[0]?.external?.url ?? '';\n    case 'status':       return prop.status?.name ?? '';\n    default:             return '';\n  }\n}\n\n/* ── Fallback 데이터 ── */\nconst FALLBACK_PRODUCTS = [\n  { id: 'fb-p1', 제품명: '에어팟 프로 2', 카테고리: '전자기기', 브랜드: 'Apple', 평균별점: 2.3, 이미지: '' },\n  { id: 'fb-p2', 제품명: '다이슨 에어랩', 카테고리: '뷰티', 브랜드: 'Dyson', 평균별점: 3.1, 이미지: '' },\n  { id: 'fb-p3', 제품명: '스탠리 텀블러', 카테고리: '생활용품', 브랜드: 'Stanley', 평균별점: 2.8, 이미지: '' },\n  { id: 'fb-p4', 제품명: '아이패드 에어 M2', 카테고리: '전자기기', 브랜드: 'Apple', 평균별점: 3.5, 이미지: '' },\n  { id: 'fb-p5', 제품명: '무지 아로마 디퓨저', 카테고리: '생활용품', 브랜드: 'MUJI', 평균별점: 2.0, 이미지: '' },\n  { id: 'fb-p6', 제품명: '에스티로더 더블웨어', 카테고리: '뷰티', 브랜드: 'Estée Lauder', 평균별점: 3.2, 이미지: '' },\n];\n\nconst FALLBACK_REVIEWS = [\n  { id: 'fb-r1', 후기제목: '노이즈캔슬링이 기대 이하', 제품id: 'fb-p1', 제품명: '에어팟 프로 2', 카테고리: '전자기기', 단점요약: '바람 부는 야외에서 노캔 효과가 급격히 떨어짐', 상세내용: '실내에서는 괜찮은데 출퇴근 시 바람이 좀만 불어도 노이즈캔슬링이 거의 무용지물입니다. 이어팁도 쉽게 빠지고 가격 대비 아쉬운 부분이 많습니다.', 별점: 2, 사용기간: '3개월+', 작성자: '음악러버', 작성일: '2026-04-20' },\n  { id: 'fb-r2', 후기제목: '무겁고 팔 아픔', 제품id: 'fb-p2', 제품명: '다이슨 에어랩', 카테고리: '뷰티', 단점요약: '30분 사용하면 손목이 저릴 정도로 무거움', 상세내용: '스타일링 효과는 좋지만 긴 머리 전체를 말려면 30분 이상 걸리고, 정말 무겁습니다. 건조 기능도 일반 드라이기보다 약합니다.', 별점: 3, 사용기간: '1개월', 작성자: '뷰티집착', 작성일: '2026-04-18' },\n  { id: 'fb-r3', 후기제목: '보온력 과장 광고', 제품id: 'fb-p3', 제품명: '스탠리 텀블러', 카테고리: '생활용품', 단점요약: '6시간 보온 광고인데 4시간이면 미지근해짐', 상세내용: '디자인은 예쁘고 튼튼하지만 보온력이 광고만큼은 절대 아닙니다. 뚜껑 구조도 복잡해서 세척이 어렵습니다.', 별점: 2, 사용기간: '3개월+', 작성자: '커피중독', 작성일: '2026-04-15' },\n  { id: 'fb-r4', 후기제목: '램 8GB 한계 체감', 제품id: 'fb-p4', 제품명: '아이패드 에어 M2', 카테고리: '전자기기', 단점요약: '멀티태스킹 시 앱 새로고침이 빈번하게 발생', 상세내용: 'M2 칩이라 빠르긴 한데 RAM이 8GB라 탭 여러개 띄우면 이전 앱이 자주 새로고침됩니다. 프로크리에이트에서 레이어 많이 쓰면 버벅거림.', 별점: 3, 사용기간: '1개월', 작성자: '아이패드러', 작성일: '2026-04-12' },\n  { id: 'fb-r5', 후기제목: '향이 금방 날아감', 제품id: 'fb-p5', 제품명: '무지 아로마 디퓨저', 카테고리: '생활용품', 단점요약: '리필 오일 소모가 빠르고 2주면 향이 거의 없어짐', 상세내용: '첫 1주일은 좋은데 2주 지나면 향이 거의 안 납니다. 리필 오일도 비싸서 유지비가 생각보다 많이 듭니다.', 별점: 2, 사용기간: '3개월+', 작성자: '미니멀라이프', 작성일: '2026-04-10' },\n  { id: 'fb-r6', 후기제목: '건성 피부엔 갈라짐', 제품id: 'fb-p6', 제품명: '에스티로더 더블웨어', 카테고리: '뷰티', 단점요약: '지속력은 좋지만 건조한 피부에 각질 부각이 심함', 상세내용: '지성 피부에는 최고라는데 건성이면 오후에 눈가 입가가 갈라집니다. 색상도 실제로 바르면 사진보다 어둡게 나와요.', 별점: 3, 사용기간: '1개월', 작성자: '건성고민', 작성일: '2026-04-08' },\n];\n\nconst CATEGORIES = [\n  { name: '전자기기', icon: '📱' },\n  { name: '생활용품', icon: '🏠' },\n  { name: '뷰티', icon: '💄' },\n  { name: '식품', icon: '🍽️' },\n  { name: '가구', icon: '🪑' },\n  { name: '패션', icon: '👕' },\n];\n\n/* ── HomePage 컴포넌트 ── */\nfunction HomePage({ onNavigate }) {\n  return (\n    <div>\n      <section className=\"hero\">\n        <h1 className=\"hero-title\">👎 솔직한 단점, 여기서 확인하세요</h1>\n        <p className=\"hero-desc\">\n          장점은 어디서든 볼 수 있지만, 진짜 단점은 찾기 어렵습니다.<br />\n          구매 전 반드시 확인해야 할 단점 후기를 모았습니다.\n        </p>\n        <button className=\"hero-btn\" onClick={() => onNavigate('search')}>🔍 단점 후기 검색하기</button>\n      </section>\n\n      <section>\n        <h2 className=\"section-title\">카테고리별 탐색</h2>\n        <div className=\"category-grid\">\n          {CATEGORIES.map(c => (\n            <button key={c.name} className=\"category-card\" onClick={() => onNavigate('search', c.name)}>\n              <span className=\"category-icon\">{c.icon}</span>\n              <span className=\"category-name\">{c.name}</span>\n            </button>\n          ))}\n        </div>\n      </section>\n    </div>\n  );\n}\n\n/* ── App 메인 컴포넌트 ── */\nfunction App() {\n  const [page, setPage] = useState('home');\n  const [filterCategory, setFilterCategory] = useState('');\n  const [products, setProducts] = useState(FALLBACK_PRODUCTS);\n  const [reviews, setReviews] = useState(FALLBACK_REVIEWS);\n  const [loading, setLoading] = useState(true);\n\n  const productDbId = extractDbId(PRODUCT_DB_ID);\n  const reviewDbId = extractDbId(REVIEW_DB_ID);\n\n  function handleNavigate(newPage, category) {\n    setPage(newPage);\n    if (category !== undefined) {\n      setFilterCategory(category);\n    } else if (newPage !== 'search') {\n      setFilterCategory('');\n    }\n    window.scrollTo(0, 0);\n  }\n\n  useEffect(() => {\n    let mounted = true;\n    async function loadData() {\n      try {\n        const pRes = await fetch('/api/notion/databases/' + productDbId + '/query', {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json' },\n          body: JSON.stringify({ page_size: 100 })\n        });\n        const pData = await pRes.json();\n        if (pData.results?.length && mounted) {\n          setProducts(pData.results.map(p => ({\n            id: p.id,\n            제품명: getCellValue(p.properties['제품명']),\n            카테고리: getCellValue(p.properties['카테고리']),\n            브랜드: getCellValue(p.properties['브랜드']),\n            평균별점: getCellValue(p.properties['평균 별점']) || 0,\n            이미지: getCellValue(p.properties['대표 이미지'])\n          })));\n        }\n\n        const rRes = await fetch('/api/notion/databases/' + reviewDbId + '/query', {\n          method: 'POST',\n          headers: { 'Content-Type': 'application/json' },\n          body: JSON.stringify({ page_size: 100 })\n        });\n        const rData = await rRes.json();\n        if (rData.results?.length && mounted) {\n          setReviews(rData.results.map(r => ({\n            id: r.id,\n            후기제목: getCellValue(r.properties['후기 제목']),\n            제품명: '',\n            카테고리: '',\n            단점요약: getCellValue(r.properties['단점 요약']),\n            상세내용: getCellValue(r.properties['상세 내용']),\n            별점: getCellValue(r.properties['별점']) || 0,\n            사용기간: getCellValue(r.properties['사용 기간']),\n            작성자: getCellValue(r.properties['작성자']),\n            작성일: getCellValue(r.properties['작성일']),\n            제품id: r.properties['연결 제품']?.relation?.[0]?.id || ''\n          })));\n        }\n      } catch (err) {\n        /* Fallback 데이터 유지 */\n      } finally {\n        if (mounted) setLoading(false);\n      }\n    }\n    loadData();\n    return () => { mounted = false; };\n  }, []);\n\n  const enrichedReviews = useMemo(() => {\n    return reviews.map(r => {\n      const product = products.find(p => p.id === r.제품id);\n      return {\n        ...r,\n        제품명: product?.제품명 || r.제품명 || '알 수 없음',\n        카테고리: product?.카테고리 || r.카테고리 || ''\n      };\n    });\n  }, [reviews, products]);\n\n  if (loading) {\n    return (\n      <div className=\"app\">\n        <Nav page={page} onNavigate={handleNavigate} />\n        <div className=\"loading-state\">불러오는 중...</div>\n      </div>\n    );\n  }\n\n  return (\n    <div className=\"app\">\n      <Nav page={page} onNavigate={handleNavigate} />\n      <main className=\"main-content\">\n        {page === 'home' && <HomePage onNavigate={handleNavigate} />}\n        {page === 'search' && (\n          <SearchPage\n            products={products}\n            reviews={enrichedReviews}\n            initialCategory={filterCategory}\n            onNavigate={handleNavigate}\n          />\n        )}\n        {page === 'write' && (\n          <WritePage\n            products={products}\n            onNavigate={handleNavigate}\n            reviewDbId={reviewDbId}\n          />\n        )}\n      </main>\n      <footer className=\"footer\">\n        <p>👎 단점검색 — 솔직한 소비의 시작</p>\n      </footer>\n    </div>\n  );\n}\n\nReactDOM.createRoot(document.getElementById('root')).render(<App />);";
+var __result=Babel.transform(__code,{filename:"app.tsx",presets:["react","typescript"],plugins:[__stripPlugin,__dedupePlugin,__jsxDecodePlugin],generatorOpts:{jsescOption:{minimal:true}},sourceType:"module"});
+var __s=document.createElement("script");__s.type="module";__s.textContent=__result.code;document.head.appendChild(__s);
+</script>
+</body></html>
